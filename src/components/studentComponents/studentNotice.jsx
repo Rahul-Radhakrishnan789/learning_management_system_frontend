@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from '../../../utils/axiosInstance'
 
-import { Box, Card, Grid, Typography, styled } from "@mui/material";
+import { Box, Card, Grid, Typography, styled, Button } from "@mui/material";
 const MainContainer = styled(Box)(({ theme }) => ({}));
 const MainTitle = styled(Typography)(({ theme }) => ({
     fontSize: "24px",
@@ -19,7 +20,8 @@ const LeaveCard = styled(Card)(({ theme }) => ({
     padding: "1rem",
     display: "flex",
     flexDirection: "column",
-    gap: "1rem",
+    gap: "10rem",
+    border: "1px solid black"
 }));
 
 const CardTitle = styled(Typography)(({ theme }) => ({
@@ -29,10 +31,28 @@ const CardTitle = styled(Typography)(({ theme }) => ({
 const CardDec = styled(Typography)(({ theme }) => ({
     fontSize: "16px",
     lineHeight: "2rem",
+
 }));
 
 export default function StudentNotice() {
     const [notices, setNotices] = useState([]);
+
+    const fetchData = async () => {
+        try {
+            const studentId = localStorage.getItem("studentId")
+            const response = await axios.get(`/getnoticetostudent/${studentId}`)
+
+            setNotices(response.data.data)
+
+        } catch (error) {
+            console.error("error fetching data", error)
+        }
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
 
     return (
         <MainContainer>
@@ -43,21 +63,16 @@ export default function StudentNotice() {
                 <GridContainer container spacing={2}>
                     <GridItem item xs={12} md={6}>
                         <LeaveCard>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <CardTitle>Title</CardTitle>
-                                <Typography sx={{ fontSize: "15px" }}>01/02/2002</Typography>
-                            </Box>
-                            <CardDec>'sss'</CardDec>
-                        </LeaveCard>
-                    </GridItem>
-                    
-                    <GridItem item xs={12} md={6}>
-                        <LeaveCard>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <CardTitle>Title</CardTitle>
-                                <Typography sx={{ fontSize: "15px" }}>01/02/2002</Typography>
-                            </Box>
-                            <CardDec>'sss'</CardDec>
+                            {notices.map((data, index) => (
+                                <div key={index} style={{border:'1px solid black',padding:"10%"}}>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        <CardTitle variant="h6">{data.title}</CardTitle>
+                                        <Typography variant="body1">{data.date}</Typography>
+                                    </Box>
+                                    <CardDec variant="body2">{data.description}</CardDec>
+
+                                </div>
+                            ))}
                         </LeaveCard>
                     </GridItem>
                 </GridContainer>

@@ -14,7 +14,7 @@ const GridContainer = styled(Grid)(({ theme }) => ({
 const GridItem = styled(Grid)(({ theme }) => ({}));
 const LeaveCard = styled(Card)(({ theme }) => ({
     width: "100%",
-    minHeight: "25rem",
+    minHeight: "15rem",
     marginTop: "2rem",
     padding: "1rem",
     display: "flex",
@@ -50,7 +50,7 @@ const StudentLeaveReport = () => {
 
             console.log("Leave report added:", response.data);
 
-            // Optionally, you can reset the form after submission
+
             setTitle("");
             setDate("");
             setContent("");
@@ -60,21 +60,21 @@ const StudentLeaveReport = () => {
         }
     };
 
-    // const fetchLeaveReports = async () => {
-    //     try {
-    //         const studentId = localStorage.getItem("teacherId");
-    //         const fetchResponse = await axios.get(`/getleavereports/${studentId}`);
-    //         console.log("response", fetchResponse);
-    //         setLeavelist(fetchResponse.data);
-    //     } catch (error) {
-    //         console.error("Error getting leave reports:", error);
-    //     }
-    // };
-    // useEffect(() => {
-    //     fetchLeaveReports();
-    // }, []);
+    const fetchLeaveReports = async () => {
+        try {
+            const studentId = localStorage.getItem("studentId");
+            const fetchResponse = await axios.get(`/getstatus/${studentId}`);
+            console.log("response", fetchResponse);
+            setLeavelist(fetchResponse.data.data);
+        } catch (error) {
+            console.error("Error getting leave reports:", error);
+        }
+    };
+    useEffect(() => {
+        fetchLeaveReports();
+    }, []);
 
-    // console.log("leaves", LeaveLsits);
+    console.log("leaves", Leavelist);
 
     return (
         <MainContainer>
@@ -118,40 +118,37 @@ const StudentLeaveReport = () => {
             <LeaveLsits>
                 <GridContainer container spacing={2}>
                     <GridItem item xs={12} md={6}>
-                        <LeaveCard>
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <CardTitle>02/12/2024</CardTitle>
-                                <Chip
-                                    sx={{
-                                        padding: "2px 0",
-                                        height: "fit-content",
-                                        fontSize: "12px",
+                        {Leavelist?.map((data, index) => (
+                            <LeaveCard key={index}>
+                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                    <CardTitle>{data?.Date}</CardTitle>
+                                    <Chip
+                                        sx={{
+                                            padding: "2px 0",
+                                            height: "fit-content",
+                                            fontSize: "12px",
+                                        }}
+                                        // label={data.status}
+                                        label="not approved"
+                                        color={data.status === "not approved" ? "error" : "primary"}
+                                        variant="outlined"
+                                    />
+                                </Box>
+                                <CardDec>{data?.description}</CardDec>
+                                <button
+                                    style={{
+                                        alignSelf: "flex-end",
+                                        padding: "5px",
+                                        cursor: "pointer",
+                                        background: "transparent",
+                                        border: "1px solid grey",
+                                        borderRadius: "5px",
                                     }}
-                                    label="not approved"
-                                    color="error"
-                                    variant="outlined"
-                                />
-                            </Box>
-                            <CardDec>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum deleniti consequuntur eius
-                                amet, illum possimus earum repellat quia quisquam neque ipsum ut dolor recusandae ipsam.
-                                Ipsam fugit aliquam pariatur, fuga distinctio repellat soluta beatae debitis dolores ut,
-                                rerum porro, incidunt officia? Nesciunt, odit quod velit accusantium totam iure deleniti
-                                saepe!
-                            </CardDec>
-                            <button
-                                style={{
-                                    alignSelf: "flex-end",
-                                    padding: "5px",
-                                    cursor: "pointer",
-                                    background: "transparent",
-                                    border: "1px solid grey",
-                                    borderRadius: "5px",
-                                }}
-                            >
-                                Remove
-                            </button>
-                        </LeaveCard>
+                                >
+                                    Remove
+                                </button>
+                            </LeaveCard>
+                        ))}
                     </GridItem>
                 </GridContainer>
             </LeaveLsits>
