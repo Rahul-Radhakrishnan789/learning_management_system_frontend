@@ -5,13 +5,26 @@ import { Email, Phone } from '@mui/icons-material';
 
 const Teachers = () => {
 
-    const [teachers,setTeachers] = useState([{name:"athul",email:"razzajbjhd",mobileNumber:"87666"}])
+    const [teachers,setTeachers] = useState([{name:"",email:"",mobileNumber:""}])
+
+    console.log('first',teachers)
+
+
+    
+  const handleWhatsAppAction = (contactNumber) => {
+    const message = "Hello, is this a good time to talk?"; 
+    const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
 
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const response = await axios.get('/api/teacher-profile'); 
-            setTeachers(response.data);
+
+            const studentId  = localStorage.getItem("studentId")
+            const response = await axios.get(`/getteachers/${studentId}`); 
+            setTeachers(response.data.data);
           } catch (error) {
             console.error('Error fetching teacher profile data:', error);
           }
@@ -48,24 +61,24 @@ const Teachers = () => {
             </List>
      
       <List>
-              {teachers?.map((student, index) => (
+              {teachers?.map((teachers, index) => (
                 <ListItem key={index} sx={{ display: 'flex', justifyContent: 'space-between',width:'100vh' }}>
                  
                 
-                  <Typography variant="h6"  color="text.primary">
-                          {student?.name}
+                  <Typography variant="body1"  color="text.primary">
+                          {teachers?.userFullName}
                         </Typography>
                 
                         <Typography variant="body2"  color="text.primary">
                           
-                          {student?.email}
+                          {teachers?.email}
                         </Typography>
                         <Typography variant="body2"  color="text.primary" sx={{ ml: 2 }}>
                           
-                          {student?.mobileNumber}
+                          {teachers?.mobileNumber}
                         </Typography>
                      
-                 <Button> contact</Button>
+                 <Button onClick={() => handleWhatsAppAction(teachers?.mobileNumber)}> contact</Button>
        
                 </ListItem>
               ))}

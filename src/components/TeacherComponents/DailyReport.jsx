@@ -1,46 +1,70 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Container, Typography, TextField, Button, Box } from '@mui/material';
+import React, { useState,useEffect } from 'react';
+import axios from "../../../utils/axiosInstance"
+import { Container, Typography, TextField, Button, Box,List,ListItem,Card,CardContent, } from '@mui/material';
 
-const DailyReport = () => {
-  const [date, setDate] = useState('');
-  const [report, setReport] = useState('');
+const Dailydescription = () => {
+    
+  const [Date, setDate] = useState('');
+  const [description, setdescription] = useState('');
+  const [fetchDatas,setFetchDatas] = useState([])
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'date') {
+    if (name === 'Date') {
       setDate(value);
-    } else if (name === 'report') {
-      setReport(value);
+    } else if (name === 'description') {
+      setdescription(value);
     }
   };
 
   const handleSubmit = async () => {
     try {
-      await axios.post('/api/add-daily-report', { date, report });
-      console.log('Daily report added successfully');
+        const teacherId = localStorage.getItem("teacherId")
+        const response =  await axios.post(`/adddailyreport/${teacherId}`, {
+            Date,description,
+        });
+
+        console.log('response',response.data)
+        
+      console.log('Daily description added successfully');
       setDate('');
-      setReport('');
+      setdescription('');
     } catch (error) {
-      console.error('Error adding daily report:', error);
+      console.error('Error adding daily description:', error);
     }
   };
 
+  const fetchData = async() => {
+    const teacherId = localStorage.getItem("teacherId")
+
+    const response = await axios.get(`/getdailyreporttoteacher/${teacherId}`)
+
+    setFetchDatas(response.data.data)
+
+  }
+
+  useEffect(() => {
+    fetchData()
+  },[])
+
+
+
   return (
-    <Container sx={{width:"100vh"}}>
+    <>
+    <Box sx={{width:"150vh"}}>
       <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
         <Typography variant="h4" gutterBottom>
-          Add Daily Report
+          Add Daily description
         </Typography>
         <Box width="100%">
           <Box mb={2}>
             <TextField
-              id="date"
-              name="date"
+              id="Date"
+              name="Date"
               label="Date"
-              type="date"
+              type="Date"
               variant="outlined"
-              value={date}
+              value={Date}
               onChange={handleChange}
               fullWidth
               InputLabelProps={{
@@ -49,26 +73,55 @@ const DailyReport = () => {
             />
           </Box>
           <TextField
-            id="report"
-            name="report"
-            label="Report"
+            id="description"
+            name="description"
+            label="description"
             multiline
             rows={6}
             variant="outlined"
             fullWidth
             margin="normal"
-            value={report}
+            value={description}
             onChange={handleChange}
           />
         </Box>
         <br />
         <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Send Report
+          Send description
         </Button>
       </Box>
-    </Container>
+      
+    </Box>
+    <Box>
+    <Box sx={{ marginY: "20%", marginX: "40px", }}>
+      <List>
+        {fetchDatas?.map((report) => (
+          <ListItem key={report.id}>
+            <Card sx={{width:"500px",minHeight:'150px'}}>
+              <CardContent>
+                <Typography variant="h5" component="div">
+                  {report?.Date}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ wordWrap:'break-word'}}>
+                  {report?.description}
+                </Typography> 
+               
+              </CardContent>
+              <CardContent>
+              {/* <Button onClick={() => {
+                   setOpen(true)
+                   setSelectedreport(report)
+              }}>Edit</Button> */}
+              </CardContent>
+            </Card>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  </Box>
+  </>
   );
 };
 
-export default DailyReport;
+export default Dailydescription;
 

@@ -64,7 +64,7 @@ try{
     const teacherId = localStorage.getItem("teacherId")
 
     const response = await axios.get(`/calender/geteventtoteacher/${teacherId}`)
-    setEventsData(response.data.data)
+    setEventsData(response.data.Data)
 }
 catch{
     console.error('Error fetching event:', error);

@@ -89,8 +89,8 @@ const Assignment = () => {
           const response = await axios.put(`/assigment/${selectedAssignment._id}`, {
             formData
           });
-          alert(response.data.message)
-          console.log('updated:', response.data.data);
+          alert(response.data.Data)
+          console.log('updated:', response);
     
          
         } catch (error) {

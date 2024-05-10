@@ -4,10 +4,12 @@ import axios from "../../../utils/axiosInstance"
 
 
 function ExamTimeTable() {
-  const [rows, setRows] = useState([{ value1: '', value2: '', value3: '' }]);
+  const [rows, setRows] = useState([{ subject: '', date: '', timeslot: '' }]);
+
+  console.log('rows',rows)
 
   const handleAddRow = () => {
-    const newRow = { value1: '', value2: '', value3: '' };
+    const newRow = { subject: '', date: '', timeslot: '' };
     setRows([...rows, newRow]);
   };
 
@@ -19,7 +21,9 @@ function ExamTimeTable() {
 
   const handleCreateTable = async () => {
     try {
-        const response =  await axios.post('/api/add-daily-report', rows);
+
+        const teacherId = localStorage.getItem("teacherId")
+        const response =  await axios.post(`adddailyreport/:id`, rows);
          console.log('Table created successfully:', response.data)
        
        } catch (error) {
@@ -45,21 +49,21 @@ function ExamTimeTable() {
               <TableRow key={row.id}>
                 <TableCell>
                   <TextField
-                    value={row.value1}
-                    onChange={(e) => handleChange(index, 'value1', e.target.value)}
+                    value={row.subject}
+                    onChange={(e) => handleChange(index, 'subject', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                   type='date'
-                    value={row.value2}
-                    onChange={(e) => handleChange(index, 'value2', e.target.value)}
+                    value={row.date}
+                    onChange={(e) => handleChange(index, 'date', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={row.value3}
-                    onChange={(e) => handleChange(index, 'value3', e.target.value)}
+                    value={row.timeslot}
+                    onChange={(e) => handleChange(index, 'timeslot', e.target.value)}
                   />
                 </TableCell>
               </TableRow>
