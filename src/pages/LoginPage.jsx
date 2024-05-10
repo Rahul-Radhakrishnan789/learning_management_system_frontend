@@ -10,6 +10,8 @@ const LoginPage = () => {
     userType: 'a'
   });
 
+  const [errors, setErrors] = useState({});
+
   const nav = useNavigate()
 
   const handleChange = (e) => {
@@ -18,17 +20,62 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+        return;
+      }
     try {
-      const response = await axios.post('/api/login', formData); 
+      const response = await axios.post('/login', formData); 
       console.log(response.data);
+
+      if(response.data.type == "teacher"){
+        localStorage.setItem("teacherId",response.data.id)
+        nav("/teacherdashboard")
+      }
+
+      if(response.data.type == "student"){
+        localStorage.setItem("studentId",response.data.id)
+        nav("/studentdashboard")
+      }
  
-        nav("/login")
+     
     
     
     } catch (err) {
       console.error(err);
     }
   };
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {};
+
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Invalid email address';
+      valid = false;
+    }
+
+   
+    
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+        valid = false;
+      } else if (formData.password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long';
+        valid = false;
+      }
+   
+    if (formData.userType === 'a') {
+      newErrors.userType = 'User type is required';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
 
   return (
     <Container sx={{marginLeft:"40%"}}>
@@ -46,6 +93,7 @@ const LoginPage = () => {
               value={formData.email}
               onChange={handleChange}
             />
+             {errors.email && <Typography color="error">{errors.email}</Typography>}
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -56,7 +104,9 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
             />
+             {errors.password && <Typography color="error">{errors.password}</Typography>}
           </Grid>
+         
           <Grid item xs={12}>
           <Select
               fullWidth
@@ -69,6 +119,7 @@ const LoginPage = () => {
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="teacher">Teacher</MenuItem>
             </Select>
+            {errors.userType && <Typography color="error">{errors.userType}</Typography>}
             </Grid>
           <Grid item xs={12}>
             <Button type="submit" variant="contained" color="primary" fullWidth>

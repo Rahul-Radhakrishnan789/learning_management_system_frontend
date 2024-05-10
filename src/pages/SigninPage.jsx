@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import axios from "../../utils/axiosInstance"
 import {Select,MenuItem ,TextField, Button, Container, Typography, Grid } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
+
+    const nav = useNavigate()
   const [formData, setFormData] = useState({
     userType: 'a',
     userFullName: '',
@@ -15,6 +18,72 @@ const RegisterForm = () => {
     email: '',
     password: '',
   });
+  const [errors, setErrors] = useState({});
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {};
+
+    if (formData.userType == 'a') {
+      newErrors.userType = 'User type is required';
+      valid = false;
+    }
+
+    if (!formData.userFullName) {
+      newErrors.userFullName = 'Full name is required';
+      valid = false;
+    }
+
+    if (!formData.age) {
+      newErrors.age = 'Age is required';
+      valid = false;
+    }
+
+    if (!formData.dob) {
+        newErrors.dob = 'dob is required';
+        valid = false;
+      }
+
+      if (formData.gender == "a") {
+        newErrors.gender = 'gender is required';
+        valid = false;
+      }
+
+      if (formData.course == "a") {
+        newErrors.course = 'course is required';
+        valid = false;
+      }
+
+      if (!formData.address) {
+        newErrors.address = 'address is required';
+        valid = false;
+      }
+
+      if (formData.mobileNumber.length !== 10) {
+        newErrors.mobileNumber = 'mobileNumber must be 10 digits';
+        valid = false;
+      }
+
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Invalid email address';
+      valid = false;
+    }
+
+  
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+      valid = false;
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,9 +91,13 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+        return;
+      }
     try {
-      const response = await axios.post('/api/register', formData);
+      const response = await axios.post('/register', formData);
       console.log(response.data); 
+      nav("/login")
     } catch (err) {
       console.error(err);
     }
@@ -49,6 +122,7 @@ const RegisterForm = () => {
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="teacher">Teacher</MenuItem>
             </Select>
+            {errors.userType && <Typography color="error">{errors.userType}</Typography>}
             <TextField
               fullWidth
               label="Full Name"
@@ -56,6 +130,7 @@ const RegisterForm = () => {
               value={formData.userFullName}
               onChange={handleChange}
             />
+             {errors.userFullName && <Typography color="error">{errors.userFullName}</Typography>}
              <Select
               fullWidth
               label="course"
@@ -71,7 +146,7 @@ const RegisterForm = () => {
               <MenuItem value="BCA">BCA</MenuItem>
               <MenuItem value="MCA">MCA</MenuItem>
             </Select>
-           
+            {errors.course && <Typography color="error">{errors.course}</Typography>}
             <TextField
               fullWidth
               label="Age"
@@ -79,6 +154,7 @@ const RegisterForm = () => {
               value={formData.age}
               onChange={handleChange}
             />
+             {errors.age && <Typography color="error">{errors.age}</Typography>}
             <TextField
               fullWidth
               type='date'
@@ -88,6 +164,7 @@ const RegisterForm = () => {
               onChange={handleChange}
             />
           </Grid>
+         
           <Grid item xs={6}>
          
              <Select
@@ -101,6 +178,7 @@ const RegisterForm = () => {
               <MenuItem value="student">Male</MenuItem>
               <MenuItem value="teacher">Female</MenuItem>
             </Select>
+            {errors.gender && <Typography color="error">{errors.gender}</Typography>}
             <TextField
               fullWidth
               label="Address"
@@ -108,6 +186,7 @@ const RegisterForm = () => {
               value={formData.address}
               onChange={handleChange}
             />
+            {errors.address && <Typography color="error">{errors.address}</Typography>}
             <TextField
               fullWidth
               label="Mobile Number"
@@ -115,6 +194,7 @@ const RegisterForm = () => {
               value={formData.mobileNumber}
               onChange={handleChange}
             />
+              {errors.mobileNumber && <Typography color="error">{errors.mobileNumber}</Typography>}
             <TextField
               fullWidth
               label="Email"
@@ -122,6 +202,8 @@ const RegisterForm = () => {
               value={formData.email}
               onChange={handleChange}
             />
+
+{errors.email && <Typography color="error">{errors.email}</Typography>}
             <TextField
               fullWidth
               label="Password"
@@ -130,6 +212,7 @@ const RegisterForm = () => {
               value={formData.password}
               onChange={handleChange}
             />
+             {errors.password && <Typography color="error">{errors.password}</Typography>}
           </Grid>
         </Grid>
         <Button type="submit" variant="contained" color="primary">
