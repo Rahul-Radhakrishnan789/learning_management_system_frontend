@@ -23,7 +23,7 @@ function ExamTimeTable() {
     try {
 
         const teacherId = localStorage.getItem("teacherId")
-        const response =  await axios.post(`adddailyreport/:id`, rows);
+        const response =  await axios.post(`/addtimetable/${teacherId}`, rows);
          console.log('Table created successfully:', response.data)
        
        } catch (error) {
