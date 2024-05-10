@@ -34,8 +34,8 @@ const StudentDashBoard = () => {
     const nav = useNavigate()
 
     return (
-        <>
-            <div style={{ height: "100vh", display: "flex" }}>
+        <Box sx={{width:'100%'}}>
+            <div style={{ height: "100vh", display: "flex",width:'100%' }}>
                 <SideBars style={{ height: "100vh" }}>
                     <Menu>
                         <MenuItem
@@ -100,7 +100,7 @@ const StudentDashBoard = () => {
                 </SideBars>
                 <Box sx={sx.renderComponent}>{children}</Box>
             </div>
-        </>
+        </Box>
     );
 };
 
@@ -114,3 +114,4 @@ const sx = {
 };
 
 export default StudentDashBoard;
+
