@@ -84,6 +84,7 @@ const StudentLeaveReport = () => {
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <TextField
+                        required
                         label="Title"
                         fullWidth
                         margin="normal"
@@ -91,6 +92,7 @@ const StudentLeaveReport = () => {
                         onChange={(e) => setTitle(e.target.value)}
                     />
                     <TextField
+                        required
                         label="Date"
                         fullWidth
                         margin="normal"
@@ -102,6 +104,7 @@ const StudentLeaveReport = () => {
                         }}
                     />
                     <TextField
+                    required
                         label="Content"
                         fullWidth
                         margin="normal"
@@ -128,9 +131,8 @@ const StudentLeaveReport = () => {
                                             height: "fit-content",
                                             fontSize: "12px",
                                         }}
-                                        // label={data.status}
-                                        label="not approved"
-                                        color={data.status === "not approved" ? "error" : "primary"}
+                                        label={data.isApproved ? "approved" : "pending"}
+                                        color={data.isApproved  ? "success" : "error"}
                                         variant="outlined"
                                     />
                                 </Box>

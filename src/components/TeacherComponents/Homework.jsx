@@ -1,103 +1,171 @@
-import React,{useState,useEffect} from 'react';
-import { Container, Typography, TextField, Button, Box,List,ListItem,ListItemText,ListItemSecondaryAction } from '@mui/material';
-import axios from "../../../utils/axiosInstance"
-import { Edit, Delete } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, TextField, Button, List, ListItem, Card, CardContent } from '@mui/material';
+import axios from "../../../utils/axiosInstance";
 
 const Homework = () => {
-
-    const [description, setdescription] = useState('');
-
-    const [homeworks, setHomeworks] = useState([]);
-
+    const [description, setDescription] = useState('');
     const [title, setTitle] = useState('');
-
-    const handleChange = (e) => {
-      setdescription(e.target.value);
-    };
+    const [homeworks, setHomeworks] = useState([]);
+    const [selectedHomework, setSelectedHomework] = useState(null);
+    const [updatedDescription, setUpdatedDescription] = useState('');
+    const [updatedTitle, setUpdatedTitle] = useState('');
 
     useEffect(() => {
         fetchData();
-      }, []);
-    
-      const fetchData = async () => {
-        try {
-          const response = await axios.get('/api/homeworks');
-          setHomeworks(response.data);
-        } catch (error) {
-          console.error('Error fetching homeworks:', error);
-        }
-      };
-    
-  
-    const handleSubmit = async () => {
-      try {
+    }, []);
 
-        const teacherId = localStorage.getItem("teacherId")
-        const response = await axios.post(`/addhomework/${teacherId}`, { description,title });
-        console.log('Homework created:', response.data);
-      
-        setdescription('');
-        setTitle("");
-      } catch (error) {
-        console.error('Error creating homework:', error);
-      }
+    const fetchData = async () => {
+        try {
+            const teacherId = localStorage.getItem("teacherId")
+            const response = await axios.get(`/gethomeworktoteacher/${teacherId}`);
+            setHomeworks(response.data.data);
+        } catch (error) {
+            console.error('Error fetching homeworks:', error);
+        }
     };
 
+    const handleChange = (e) => {
+        setDescription(e.target.value);
+    };
 
-  return (
-    <Box  sx={{display:"flex"}}>
-        <Box  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}>
-    <Typography variant="h4" gutterBottom>
-      Create Homework
-    </Typography>
-    <Box width="100%">
-    <Box mb={2}>
-        <TextField
-          id="title"
-          label="Title"
-          variant="outlined"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          fullWidth
-        />
-      </Box>
-    <TextField
-          id="homework"
-          label="Enter homework here"
-          multiline
-          rows={6}
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={description}
-          onChange={handleChange}
-        />
-    </Box>
-    <br />
-    <Button variant="contained" color="primary" onClick={handleSubmit}>
-      Send Homework
-    </Button>
-    </Box>
-    <Box sx={{marginY:"20%",marginX:"40px" }}>
-    <List>
-        {homeworks?.map((homework) => (
-          <ListItem key={homework.id}>
-            <ListItemText primary={homework.title} secondary={homework.description} />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(homework?.id)}>
-                <Edit />
-              </IconButton>
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(homework?.id)}>
-                <Delete />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  </Box>
+    const handleEdit = (homework) => {
+        setSelectedHomework(homework);
+        setUpdatedTitle(homework.title);
+        setUpdatedDescription(homework.description);
+    };
 
-  );
+    const handleUpdateChange = (e) => {
+        const { name, value } = e.target;
+        if (name === 'title') {
+            setUpdatedTitle(value);
+        } else if (name === 'description') {
+            setUpdatedDescription(value);
+        }
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const teacherId = localStorage.getItem("teacherId")
+            const response = await axios.post(`/addhomework/${teacherId}`, { description, title });
+            console.log('Homework created:', response.data);
+            setDescription('');
+            setTitle('');
+            fetchData();
+        } catch (error) {
+            console.error('Error creating homework:', error);
+        }
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const updatedData = {
+                description: updatedDescription,
+                title: updatedTitle
+            };
+            await axios.put(`/updatehomework/${selectedHomework._id}`, updatedData);
+            console.log('Homework updated successfully');
+            setSelectedHomework(null);
+            setUpdatedDescription('');
+            setUpdatedTitle('');
+            fetchData();
+        } catch (error) {
+            console.error('Error updating homework:', error);
+        }
+    };
+
+    return (
+        <Box sx={{ display: "flex" }}>
+            <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                <Typography variant="h4" gutterBottom>
+                    Create Homework
+                </Typography>
+                <Box width="100%">
+                    <Box mb={2}>
+                        <TextField
+                        required
+                            id="title"
+                            label="Title"
+                            variant="outlined"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            fullWidth
+                        />
+                    </Box>
+                    <TextField
+                    required
+                        id="homework"
+                        label="Enter homework here"
+                        multiline
+                        rows={6}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={description}
+                        onChange={handleChange}
+                    />
+                </Box>
+                <br />
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    Send Homework
+                </Button>
+            </Box>
+            <Box sx={{ marginY: "20%", marginX: "40px" }}>
+                <List>
+                    {homeworks?.map((homework) => (
+                        <ListItem key={homework?.id}>
+                            <Card sx={{ width: "300px", minHeight: '150px' }}>
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        {homework?.title}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ wordWrap: 'break-word' }}>
+                                        {homework?.description}
+                                    </Typography>
+                                    <br />
+                                    <br />
+                                    <Typography variant="body2" color="text.secondary">
+                                        Deadline: {homework?.expireAt}
+                                    </Typography>
+                                </CardContent>
+                                <CardContent>
+                                    <Button onClick={() => handleEdit(homework)}>Edit</Button>
+                                </CardContent>
+                            </Card>
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+            {selectedHomework && (
+                <Box>
+                    <TextField
+                        id="updatedTitle"
+                        name="title"
+                        label="Title"
+                        variant="outlined"
+                        value={updatedTitle}
+                        onChange={handleUpdateChange}
+                        fullWidth
+                    />
+                    <TextField
+                        id="updatedDescription"
+                        name="description"
+                        label="Description"
+                        multiline
+                        rows={6}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={updatedDescription}
+                        onChange={handleUpdateChange}
+                    />
+                    <br />
+                    <Button variant="contained" color="primary" onClick={handleUpdate}>
+                        Update
+                    </Button>
+                </Box>
+            )}
+        </Box>
+    );
 };
 
 export default Homework;

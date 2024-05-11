@@ -1,83 +1,63 @@
-import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import axios from "../../../utils/axiosInstance"
+import { Typography, Paper, Grid, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+const MarkCard = () => {
+  const [students, setStudents] = useState([]);
 
+  const nav = useNavigate()
+ 
 
-function MarkCard() {
-  const [rows, setRows] = useState([{ value1: '', value2: '', value3: '' }]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const teacherId = localStorage.getItem("teacherId")
+        const response = await axios.get(`/teacher/getstudentsunderdepartment/${teacherId}`); 
+        setStudents(response.data.Data);
+      } catch (error) {
+        console.error('Error fetching teacher profile data:', error);
+      }
+    };
 
-  const handleAddRow = () => {
-    const newRow = { value1: '', value2: '', value3: '' };
-    setRows([...rows, newRow]);
-  };
-
-  const handleChange = (index, key, value) => {
-    const updatedRows = [...rows];
-    updatedRows[index][key] = value;
-    setRows(updatedRows);
-  };
-
-  const handleCreateTable = async () => {
-    try {
-        const response =  await axios.post('/api/add-daily-report', rows);
-         console.log('Table created successfully:', response.data)
-       
-       } catch (error) {
-         console.error('Error:', error);
-       }
-     };
-  
+    fetchData();
+  }, []);
 
   return (
     <div>
-      <TableContainer component={Paper}>
-        <h2> Mark Sheet</h2>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Subject</TableCell>
-              <TableCell>Total Mark</TableCell>
-              <TableCell>Grade</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, index) => (
-              <TableRow key={row.id}>
-                <TableCell>
-                  <TextField
-                    value={row.value1}
-                    onChange={(e) => handleChange(index, 'value1', e.target.value)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                  type='date'
-                    value={row.value2}
-                    onChange={(e) => handleChange(index, 'value2', e.target.value)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value={row.value3}
-                    onChange={(e) => handleChange(index, 'value3', e.target.value)}
-                  />
-                </TableCell>
-              </TableRow>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <List>
+            <ListItem sx={{ display: 'flex', justifyContent: 'space-between', width: '100vh' }}>
+              <Typography variant="h6" component="span" color="text.primary">
+                Name
+              </Typography>
+              <Typography variant="h6" component="span" color="text.primary">
+                Email
+              </Typography>
+              <Typography variant="h6" component="span" color="text.primary" sx={{ ml: 2 }}>
+                Add mark
+              </Typography>  
+              
+            </ListItem>
+          </List>
+          <List>
+            {students?.map((student, index) => (
+              <ListItem key={index} sx={{ display: 'flex', justifyContent: 'space-between', width: '100vh' }}>
+                <Typography variant="body2" color="text.primary">
+                  {student?.userFullName}
+                </Typography>
+                <Typography variant="body2" color="text.primary">
+                  {student?.email}
+                </Typography>
+                
+                <Button onClick={() => nav(`/addmark/${student._id}`) }>add mark</Button>
+              </ListItem>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <br />
-      <Button variant="contained" color="primary" onClick={handleAddRow}>
-        Add Row
-      </Button>
-      <br />
-      <br />
-      <Button variant="contained" color="primary" onClick={handleCreateTable}>
-       Create Mark Sheet
-      </Button>
+          </List>
+        </Grid>
+      </Grid>
     </div>
   );
-}
+};
 
 export default MarkCard;

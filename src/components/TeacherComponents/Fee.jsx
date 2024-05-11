@@ -26,6 +26,7 @@ const Fee = () => {
       const response = await axios.post(`/addfee/${teacherId}`, formData);
       console.log('Data sent successfully:', response.data);
       setFormData({ title: '', amount: '', DueDate: '' });
+      fetchFees()
     } catch (error) {
       console.error('Error sending data:', error);
     }
@@ -83,6 +84,7 @@ try{
         </Grid>
         <Grid item xs={12}>
           <TextField
+          required
             fullWidth
             label="Title"
             name="title"
@@ -93,6 +95,7 @@ try{
         </Grid>
         <Grid item xs={12}>
           <TextField
+          required
             fullWidth
             label="Amount"
             name="amount"
@@ -103,6 +106,7 @@ try{
         </Grid>
         <Grid item xs={12}>
           <TextField
+          required
             fullWidth
             label="Due Date"
             name="DueDate"

@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer,styled,Box, TableHead, TableRow, Paper, Button, TextField,Typography } from '@mui/material';
+import { Table, TableBody,styled,Box, TableCell,Typography, TableContainer, TableHead, TableRow, Paper, Button, TextField } from '@mui/material';
 import axios from "../../../utils/axiosInstance"
-
+import { useParams } from 'react-router-dom';
 
 const MainContainer = styled(Box)(({ theme }) => ({
    
@@ -17,15 +17,15 @@ const SubContainer = styled(Box)(({ theme }) => ({
 }));
 
 
+function AddMarkCard() {
+  const [rows, setRows] = useState([{ subject: '', mark: '', grade: '' }]);
+  const [title, setTitle] = useState("");
+  const [data,setData] = useState([])
 
-function ExamTimeTable() {
-  const [rows, setRows] = useState([{ subject: '', date: '', timeslot: '' }]);
-  const [timetables, setTimetables] = useState([]);
-
-  console.log('rows',rows)
+  const {id} = useParams();
 
   const handleAddRow = () => {
-    const newRow = { subject: '', date: '', timeslot: '' };
+    const newRow = { subject: '', mark: '', grade: '' };
     setRows([...rows, newRow]);
   };
 
@@ -35,69 +35,73 @@ function ExamTimeTable() {
     setRows(updatedRows);
   };
 
-  const fetchTimetables = async () => {
+  const handleCreateTable = async () => {
+    try {
+      const data = { title: title, row: rows };
+      console.log('data',data)
+
+      const teacherId = localStorage.getItem("teacherId")
+      const response = await axios.post(`/addmarksheet/${teacherId}/${id}`, data);
+      console.log('Table created successfully:', response.data);
+    } catch (error) {
+      console.error('Error adding daily report:', error);
+    }
+  };
+
+  const fetchData = async () => {
     try {
         const teacherId = localStorage.getItem("teacherId");
-        const response = await axios.get(`/gettimetabletoteacher/${teacherId}`);
-        setTimetables(response.data.data);
+        const response = await axios.get(`/getmarksheet/${teacherId}`);
+        setData(response.data.data);
     } catch (error) {
         console.error("Error getting Time Tables:", error);
     }
 };
 
 useEffect(() => {
-    fetchTimetables();
+    fetchData();
 }, []);
-
-  const handleCreateTable = async () => {
-    try {
-
-        const teacherId = localStorage.getItem("teacherId")
-        const response =  await axios.post(`/addtimetable/${teacherId}`, rows);
-         console.log('Table created successfully:', response.data)
-         fetchTimetables();
-       } catch (error) {
-         console.error('Error adding daily report:', error);
-       }
-     };
-  
 
   return (
     <>
-    <div>
+    <div style={{margin:'10%'}}>
+      <TextField
+        label="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <TableContainer component={Paper}>
-        <h2> Exam Time Table</h2>
+        <h2>Mark Sheet</h2>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Subject</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Time</TableCell>
+              <TableCell>Total Mark</TableCell>
+              <TableCell>Grade</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row, index) => (
-              <TableRow key={row.id}>
+              <TableRow key={index}>
                 <TableCell>
                   <TextField
-                  required
                     value={row.subject}
                     onChange={(e) => handleChange(index, 'subject', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                  type='date'
                   required
-                    value={row.date}
-                    onChange={(e) => handleChange(index, 'date', e.target.value)}
+                    type='number'
+                    value={row.mark}
+                    onChange={(e) => handleChange(index, 'mark', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                   required
-                    value={row.timeslot}
-                    onChange={(e) => handleChange(index, 'timeslot', e.target.value)}
+                    value={row.grade}
+                    onChange={(e) => handleChange(index, 'grade', e.target.value)}
                   />
                 </TableCell>
               </TableRow>
@@ -112,14 +116,13 @@ useEffect(() => {
       <br />
       <br />
       <Button variant="contained" color="primary" onClick={handleCreateTable}>
-       Create Time Table
+        Create Mark Sheet
       </Button>
     </div>
-
     <MainContainer>
             <MainTitle>Time Tables</MainTitle>
             <SubContainer>
-                {timetables.map((timetable, index) => (
+                {data?.map((timetable, index) => (
                     <div key={index}>
                         <Typography variant="h6" gutterBottom>
                            <br />
@@ -154,4 +157,4 @@ useEffect(() => {
   );
 }
 
-export default ExamTimeTable; 
+export default AddMarkCard;

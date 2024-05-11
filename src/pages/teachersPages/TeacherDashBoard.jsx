@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Box, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import TeacherProfile from "../../components/TeacherComponents/Profile";
-import Exam from "../../components/TeacherComponents/Exam";
 import ExamTimetable from "../../components/TeacherComponents/ExamTimetable";
 import MarkCard from "../../components/TeacherComponents/MarkCard";
 import Notice from "../../components/TeacherComponents/Notice";
@@ -82,9 +81,9 @@ const TeacherDashBoard = () => {
                         <MenuItem onClick={() => setChildren(<MarkCard/>)} >
                         Mark Card
                         </MenuItem>
-                        <MenuItem onClick={() => setChildren(<Exam/>)} >
+                        {/* <MenuItem onClick={() => setChildren(<Exam/>)} >
                             Exam
-                        </MenuItem>
+                        </MenuItem> */}
                         <MenuItem onClick={() => setChildren(<ExamTimetable/>)} >
                             Time Table
                         </MenuItem>

@@ -1,28 +1,21 @@
 import React, { useState,useEffect } from 'react';
-import { Box, Card, CardContent, Modal, Typography, TextField, Button, Container,List,ListItem,FormControl  } from '@mui/material';
+import { Box, Card, CardContent,  Typography, TextField, Button,List,ListItem, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Modal, Backdrop, Fade  } from '@mui/material';
 import axios from "../../../utils/axiosInstance"
+import { useNavigate } from 'react-router-dom';
 
 const Assignment = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [deadLine, setDeadline] = useState('');
     const [assignmentList,setAssignmentList] = useState([])
-    const [startDate,setStartDate] = useState('');
-    const [open, setOpen] = useState(false);
-    const [selectedAssignment, setSelectedAssignment] = useState(null);
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        startDate: "",
-        deadLine:""
-      });
+    const [startDate,setStartDate] = useState('')
+    const [submittedStudents, setSubmittedStudents] = useState([]);
 
-    console.log("aaaaaa",assignmentList)
-    console.log("selectedAssignment",selectedAssignment)
+    
+ const nav = useNavigate()
 
-    const handleChangeModal = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-      };
+
+    console.log("aaaaaa",submittedStudents)
 
 
 
@@ -50,7 +43,7 @@ const Assignment = () => {
                 title,description,deadLine,startDate
             });
 
-            console.log('assignment created:', response.data);
+            console.log('assignment created:', response.data.Data);
 
             setTitle('');
            setDescription("")
@@ -79,56 +72,37 @@ const Assignment = () => {
         }
 
       }
+      
 
-      console.log('formData',formData)
-
-      const handleEdit = async (e) => {
-        try {
-            e.preventDefault();
-         
-          const response = await axios.put(`/assigment/${selectedAssignment._id}`, {
-            formData
-          });
-          alert(response.data.Data)
-          console.log('updated:', response);
     
-         
-        } catch (error) {
-          console.error('Error updating assignment:', error);
-        }
-      };
 
-      useEffect(() => {
+      // get submitted students 
+
+      const fetchSubmittedStudents = async (id) => {
+        try {
+
+            nav(`/assignment/${id}`)
+
+        } catch (error) {
+            console.error('Error fetching submitted students:', error);
+        }
+    };
+
+
+    useEffect(() => {
         fetchAssignments();
+      
       },[])
 
-      
-      useEffect(() => {
-        if (assignmentList.length > 0 && selectedAssignment) {
-          const selectedAssignmentData = assignmentList.find((assignment) => assignment._id === selectedAssignment?._id);
-          if (selectedAssignmentData) {
-            setFormData({
-              title: selectedAssignmentData.title,
-              description: selectedAssignmentData.description,
-              startDate: selectedAssignmentData.startDate,
-              deadLine: selectedAssignmentData.deadLine,
-             
-            });
-          } else {
-            console.error("Selected assignment not found");
-          }
-        }
-      }, [selectedAssignment?._id]);
-  
 
 
   return (
+    <>
     <Box sx={{display:'flex'}}>
     <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <Typography variant="h4" gutterBottom>
         Create Assignment
       </Typography>
-      <form>
       <Box width="100%">
         <Box mb={2}>
           <TextField
@@ -191,7 +165,6 @@ const Assignment = () => {
       <Button variant="contained" color="primary" onClick={handleSubmit}>
         Send assignment
       </Button>
-      </form>
     </Box>
     <Box sx={{ marginY: "20%", marginX: "40px", }}>
       <List>
@@ -213,115 +186,16 @@ const Assignment = () => {
                 </Typography>
               </CardContent>
               <CardContent>
-              <Button onClick={() => {
-                   setOpen(true)
-                   setSelectedAssignment(assignment)
-              }}>Edit</Button>
+              <Button onClick={() => fetchSubmittedStudents(assignment._id)}>View</Button>
               </CardContent>
             </Card>
           </ListItem>
         ))}
       </List>
     </Box>
-    <Modal open={open} onClose={() => setOpen(false)}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: 400,
-                            bgcolor: "background.paper",
-                            boxShadow: 24,
-                            p: 4,
-                          }}
-                        >
-                          <form style={{ width: "100%" }} onSubmit={handleEdit}>
-                            <Box sx={sx.form}>
-                              <TextField
-                                label="title"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleChangeModal}
-                                required
-                                sx={sx.inputBox}
-                              />
-                              <FormControl fullWidth>
-                                <TextField
-                                  label="description"
-                                  name="description"
-                                  value={formData.description}
-                                  onChange={handleChangeModal}
-                                  required
-                                  sx={sx.inputBox}
-                                />
-                              </FormControl>
-                             
-                              <TextField
-                                label="startDate"
-                                name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChangeModal}
-                                type="date"
-                                sx={sx.inputBox}
-                              />
-
-                              <TextField
-                                label="deadLine"
-                                name="deadLine"
-                                type="date"
-                                value={formData.deadLine}
-                                onChange={handleChangeModal}
-                                required
-                                sx={sx.inputBox}
-                              />
-                              <Button
-                                sx={sx.submitButton}
-                                type="submit"
-                                variant="contained"
-                                // onClick={(e) => handleEdit(e)}
-                              >
-                                Apply changes
-                              </Button>
-                            </Box>
-                          </form>
-                        </Box>
-                      </Modal>
   </Box>
+ </>
   );
 };
 
 export default Assignment;
-
-const sx = {
-    mainContainer: {
-      maxWidth: { xs: "100%", sm: "70%", md: "50%" },
-      display: "flex",
-      justifyContent: "space-between",
-      overflow: "scroll",
-      margin: "0 auto",
-      padding: { xs: "0", sm: "10px" },
-    },
-    inputBox: {
-      backgroundColor: "white",
-      marginBottom: "5%",
-      borderRadius: "10px",
-    },
-    submitButton: {
-      width: "100%",
-      marginTop: "5%",
-      boxShadow: "0px 11px 16.799999237060547px rgba(0, 0, 0, 0.25)",
-      borderRadius: 20,
-      fontSize: { xs: 10, sm: 14, md: 14, lg: 14 },
-      textTransform: "none",
-      color: "#fff",
-      fontFamily: "var(--font-dmsanslight)",
-    },
-    form: {
-      display: "flex",
-      flexDirection: "column",
-      padding: "5%",
-      background: "#BFBFBF",
-      borderRadius: "10px",
-    },
-  };

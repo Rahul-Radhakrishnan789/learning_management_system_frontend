@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from '../../../utils/axiosInstance'
 
 import { Box, Card, Grid, Modal, Typography, styled } from "@mui/material";
 
@@ -15,7 +16,7 @@ const GridContainer = styled(Grid)(({ theme }) => ({
 const GridItem = styled(Grid)(({ theme }) => ({}));
 const SeminarCard = styled(Card)(({ theme }) => ({
     width: "100%",
-    minHeight: "25rem",
+    minHeight: "15rem",
     marginTop: "2rem",
     padding: "1rem",
     display: "flex",
@@ -42,86 +43,131 @@ const style = {
     boxShadow: 24,
     p: 4,
     borderRadius: "10px",
-    display:'flex',
-    flexDirection:'column',
-
-
-
+    display: 'flex',
+    flexDirection: 'column',
 };
 
 export default function StudentSeminar() {
     const [open, setOpen] = React.useState(false);
+    const [file, setFile] = React.useState([]);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    const [seminars, setSeminars] = useState([]);
+
+    console.log('first',file)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const studentId = localStorage.getItem("studentId");
+                const response = await axios.get(`/getseminartostudent/${studentId}`);
+                setSeminars(response.data.data);
+            } catch (error) {
+                console.error('Error fetching seminar data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const handleImageUpload = (event) => {
+        const selectedFile = event.target.files;
+        setFile(selectedFile);
+    };
+
+    const handleSubmit = async (seminarId) => {
+        try {
+            const formData = new FormData();
+            for (let i = 0; i < file.length; i++) {
+                formData.append('images', file[i]);
+            }
+
+            const studentId = localStorage.getItem("studentId")
+
+            const response = await axios.post(`/seminar/${seminarId}/students/${studentId}/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }); 
+            handleClose()
+
+             console.log('second',response.data.data)
+           
+        } catch (error) {
+            console.error('Error uploading image:', error);
+        }
+    };
 
     return (
         <MainContainer>
             <MainTitle>
-                <MainTitle>Seminars</MainTitle>
+                Seminars
             </MainTitle>
             <SubContainer>
                 <GridContainer container spacing={2}>
-                    <GridItem item xs={12} md={6}>
-                        <SeminarCard>
-                            <Box>
-                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <CardTitle>Title</CardTitle>
-                                    <Typography sx={{ fontSize: "15px" }}>01/02/2002</Typography>
+                    {seminars.map((seminar, index) => (
+                        <GridItem key={index} item xs={12} md={6}>
+                            <SeminarCard>
+                                <Box>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        <CardTitle>{seminar.title}</CardTitle>
+                                        <Typography sx={{ fontSize: "15px" }}><span style={{fontSize:'12px'}}>Last date to submit</span> {seminar.deadLine}</Typography>
+                                    </Box>
+                                    <CardDec>{seminar.description}</CardDec>
                                 </Box>
-                                <CardDec>
-                                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ullam qui maxime dolor.
-                                    Reprehenderit vero asperiores minima doloremque nostrum, consectetur quod commodi
-                                    quaerat, consequatur quas quibusdam culpa omnis sed dolorum cumque quia repudiandae,
-                                    eius in soluta impedit. Deleniti eum nisi ullam fugiat delectus reprehenderit quia
-                                    tempore labore quae, possimus asperiores harum.
-                                </CardDec>
-                            </Box>
-                            <button
-                                onClick={handleOpen}
-                                style={{
-                                    alignSelf: "flex-end",
-                                    background: "transparent",
-                                    border: "1px solid grey",
-                                    borderRadius: "5px",
-                                    padding: "5px",
-                                    fontSize: "14px",
-                                }}
-                            >
-                                Attach
-                            </button>
-                        </SeminarCard>
-                        <Modal
-                            open={open}
-                            onClose={handleClose}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                        >
-                            <Box sx={style}>
-                                <Typography id="modal-modal-title" variant="h6" component="h2">
-                                    Add File
-                                </Typography>
-                                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                    Must Upload the full report.
-                                </Typography>
-                                <input 
-                                  style={{marginTop:'16px'}}
-                                type="file" />
                                 <button
-                                onClick={handleOpen}
-                                style={{
-                                    alignSelf: "flex-end",
-                                    background: "transparent",
-                                    border: "1px solid grey",
-                                    borderRadius: "5px",
-                                    padding: "5px",
-                                    fontSize: "14px",
-                                }}
+                                    onClick={handleOpen}
+                                    style={{
+                                        alignSelf: "flex-end",
+                                        background: "transparent",
+                                        border: "1px solid grey",
+                                        borderRadius: "5px",
+                                        padding: "5px",
+                                        fontSize: "14px",
+                                    }}
+                                >
+                                    Attach
+                                </button>
+                            </SeminarCard>
+                            <Modal
+                                open={open}
+                                onClose={handleClose}
+                                aria-labelledby="modal-modal-title"
+                                aria-describedby="modal-modal-description"
                             >
-                                Subbmit
-                            </button>
-                            </Box>
-                        </Modal>
-                    </GridItem>
+                                <Box sx={style}>
+                                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                                        Add File
+                                    </Typography>
+                                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                        Must Upload the full report.
+                                    </Typography>
+                                    <input
+                        required={true}
+                        type="file"
+                        name="images"
+                        accept=".png, .jpg, .jpeg"
+                        maxfilesize={10000000}
+                        multiple
+                        onChange={handleImageUpload}
+                    />
+                                    <button
+                                     onClick={() => handleSubmit(seminar._id)}
+                                        style={{
+                                            alignSelf: "flex-end",
+                                            background: "transparent",
+                                            border: "1px solid grey",
+                                            borderRadius: "5px",
+                                            padding: "5px",
+                                            fontSize: "14px",
+                                        }}
+                                    >
+                                        Submit
+                                    </button>
+                                </Box>
+                            </Modal>
+                        </GridItem>
+                    ))}
                 </GridContainer>
             </SubContainer>
         </MainContainer>

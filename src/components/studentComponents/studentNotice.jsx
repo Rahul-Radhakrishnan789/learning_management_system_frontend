@@ -57,7 +57,7 @@ export default function StudentNotice() {
     return (
         <MainContainer>
             <MainTitle>
-                <MainTitle>Leave Reports</MainTitle>
+                <MainTitle>Notice</MainTitle>
             </MainTitle>
             <SubContainer>
                 <GridContainer container spacing={2}>
@@ -67,7 +67,7 @@ export default function StudentNotice() {
                                 <div key={index} style={{border:'1px solid black',padding:"10%"}}>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                         <CardTitle variant="h6">{data.title}</CardTitle>
-                                        <Typography variant="body1">{data.date}</Typography>
+                                        <Typography variant="body1">{data.Date}</Typography>
                                     </Box>
                                     <CardDec variant="body2">{data.description}</CardDec>
 

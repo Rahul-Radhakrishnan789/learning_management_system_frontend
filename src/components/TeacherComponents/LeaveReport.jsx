@@ -16,7 +16,7 @@ const GridContainer = styled(Grid)(({ theme }) => ({
 const GridItem = styled(Grid)(({ theme }) => ({}));
 const LeaveCard = styled(Card)(({ theme }) => ({
     width: "100%",
-    minHeight: "25rem",
+    minHeight: "5rem",
     marginTop: "2rem",
     padding: "1rem",
     display: "flex",
@@ -36,6 +36,8 @@ const CardDec = styled(Typography)(({ theme }) => ({
 const LeaveReport = () => {
     const [leaveReports, setLeaveReports] = useState([]);
 
+    console.log('first,',leaveReports)
+
     const fetchLeaveReports = async () => {
         try {
             const teacherId = localStorage.getItem("teacherId");
@@ -45,6 +47,13 @@ const LeaveReport = () => {
             console.error("Error getting leave reports:", error);
         }
     };
+
+    const approveRequest = async(id) => {
+
+    const response = await axios.put(`approverequest/${id}`)
+
+    console.log('response',response)
+    }
 
     useEffect(() => {
         fetchLeaveReports();
@@ -62,6 +71,9 @@ const LeaveReport = () => {
                     {leaveReports.map((leave) => (
                         <GridItem item xs={12} md={6}>
                             <LeaveCard>
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                    <Typography>{leave.studentId.userFullName}</Typography>
+                                </Box>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                     <Typography>{leave.Date}</Typography>
                                 </Box>
@@ -75,10 +87,11 @@ const LeaveReport = () => {
                                             border: "1px solid grey",
                                             borderRadius: "5px",
                                         }}
+                                        onClick={() => approveRequest(leave._id)}
                                     >
                                         Approve
                                     </button>
-                                    <button
+                                    {/* <button
                                         style={{
                                             marginLeft: ".5rem",
                                             padding: "5px",
@@ -89,7 +102,7 @@ const LeaveReport = () => {
                                         }}
                                     >
                                         Not approve
-                                    </button>
+                                    </button> */}
                                 </Box>
                             </LeaveCard>
                         </GridItem>

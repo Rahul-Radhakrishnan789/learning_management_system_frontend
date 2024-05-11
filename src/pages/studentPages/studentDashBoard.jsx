@@ -15,7 +15,7 @@ import StudentLibrary from "../../components/studentComponents/studentLibrary";
 import StudentMarkCard from "../../components/studentComponents/studentMarkCard";
 import StudentNotice from "../../components/studentComponents/studentNotice";
 import StudentPayment from "../../components/studentComponents/studentPayment";
-import StudentReturnBooks from "../../components/studentComponents/studentReturnBooks";
+import StudentReturnBooks from "../../components/studentComponents/studentViewBooks";
 import StudentSeminar from "../../components/studentComponents/studentSeminar";
 import StudentViewTeachers from "../../components/studentComponents/studentViewTeachers";
  
@@ -61,7 +61,7 @@ const StudentDashBoard = () => {
                        Calender
                         </MenuItem>
                         <MenuItem onClick={() => setChildren(<StudentDailyReports/>)}>
-                    DailyReports
+                    Daily Reports
                         </MenuItem>
                         <MenuItem onClick={() => setChildren(<StudentExamTimetable/>)} >
                         ExamTimetable
@@ -70,7 +70,7 @@ const StudentDashBoard = () => {
                     Homework
                         </MenuItem>
                         <MenuItem onClick={() => setChildren(<StudentLeaveReport/>)}>
-                 LeaveReport
+                 Leave Report
                         </MenuItem>
                         <MenuItem onClick={() => setChildren(<StudentLibrary/>)} >
                        Library
@@ -85,7 +85,7 @@ const StudentDashBoard = () => {
                       Payment
                         </MenuItem>
                         <MenuItem onClick={() => setChildren(<StudentReturnBooks/>)} >
-                    ReturnBooks
+                    View Books
                         </MenuItem>
                         <MenuItem onClick={() => setChildren(<StudentSeminar/>)} >
                    Seminar

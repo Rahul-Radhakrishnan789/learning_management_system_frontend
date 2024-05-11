@@ -55,7 +55,7 @@ export default function Navbar() {
             <Box sx={{ display: "flex" }}>
             
               <Box sx={sx.navLinks}  onClick={() => nav("/")}>Home</Box>
-              <Box sx={sx.navLinks} onClick={() => nav("/adminlogin")}>Library</Box>
+              <Box sx={sx.navLinks} onClick={() => nav("/librarylogin")}>Librarian</Box>
               <Box
                 to="targetFeatures"
                 href="#"

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Grid, Paper } from '@mui/material';
-import axios from "../../../utils/axiosInstance"
+import axios from "../../../utils/axiosInstance";
 import {
     MDBCol,
     MDBContainer,
@@ -9,30 +8,29 @@ import {
     MDBCardText,
     MDBCardBody,
     MDBCardImage,
-    MDBBtn,
-    MDBBreadcrumb,
-    MDBBreadcrumbItem,
-    MDBProgress,
-    MDBProgressBar,
-    MDBIcon,
-    MDBListGroup,
-    MDBListGroupItem
+    MDBBtn
 } from 'mdb-react-ui-kit';
 
 const TeacherProfile = () => {
     const [teacherData, setTeacherData] = useState(null);
-
-    console.log("goo", teacherData)
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [mobileNumber, setMobileNumber] = useState('');
+    const [age, setAge] = useState('');
+    const [address, setAddress] = useState('');
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-
-                const teacherId = localStorage.getItem("teacherId")
-                console.log("first")
+                const teacherId = localStorage.getItem("teacherId");
                 const response = await axios.get(`/teacherdata/${teacherId}`);
                 setTeacherData(response.data.data);
-                console.log("hgfjh", response)
+                setFullName(response.data.data.userFullName);
+                setEmail(response.data.data.email);
+                setMobileNumber(response.data.data.mobileNumber);
+                setAge(response.data.data.age);
+                setAddress(response.data.data.address);
             } catch (error) {
                 console.error('Error fetching teacher profile data:', error);
             }
@@ -41,11 +39,56 @@ const TeacherProfile = () => {
         fetchData();
     }, []);
 
-    return (
-        <section style={{ backgroundColor: '#eee' }}>
-            <MDBContainer className="py-5">
-              
+    const validateInputs = () => {
+        const errors = {};
+        if (!fullName.trim()) {
+            errors.fullName = "Full Name is required";
+        }
+        if (!email.trim()) {
+            errors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            errors.email = "Email is invalid";
+        }
+        if (!mobileNumber.trim()) {
+            errors.mobileNumber = "Phone number is required";
+        } else if (!/^\d{10}$/.test(mobileNumber)) {
+            errors.mobileNumber = "Phone number must contain exactly 10 digits";
+        }
+        if (!age.trim()) {
+            errors.age = "Age is required";
+        } else if (!/^\d+$/.test(age)) {
+            errors.age = "Age must be a number";
+        }
+        if (!address.trim()) {
+            errors.address = "Address is required";
+        }
+        return errors;
+    };
 
+    const handleSubmit = async () => {
+        const errors = validateInputs();
+        if (Object.keys(errors).length === 0) {
+            try {
+                const teacherId = localStorage.getItem("teacherId");
+                await axios.put(`/updatedteacher/${teacherId}`, {
+                    userFullName: fullName,
+                    email,
+                    mobileNumber,
+                    age,
+                    address
+                });
+                console.log('Profile updated successfully');
+            } catch (error) {
+                console.error('Error updating teacher profile:', error);
+            }
+        } else {
+            setErrors(errors);
+        }
+    };
+
+    return (
+        <section style={{ backgroundColor: '#eee', height: "100vh" }}>
+            <MDBContainer className="py-5">
                 <MDBRow>
                     <MDBCol lg="4">
                         <MDBCard className="mb-4">
@@ -56,74 +99,55 @@ const TeacherProfile = () => {
                                     className="rounded-circle"
                                     style={{ width: '150px' }}
                                     fluid />
-                                <div className="d-flex justify-content-center mb-2">
-
-                                </div>
                             </MDBCardBody>
                         </MDBCard>
-
-
                     </MDBCol>
                     <MDBCol lg="8">
                         <MDBCard className="mb-4">
                             <MDBCardBody>
-                                <MDBRow>
-                                    <MDBCol sm="3">
-                                        <MDBCardText>Full Name</MDBCardText>
-                                    </MDBCol>
-                                    <MDBCol sm="9">
-                                        <MDBCardText className="text-muted">{teacherData?.userFullName}</MDBCardText>
-                                    </MDBCol>
-                                </MDBRow>
-                                <hr />
-                                <MDBRow>
-                                    <MDBCol sm="3">
-                                        <MDBCardText>Email</MDBCardText>
-                                    </MDBCol>
-                                    <MDBCol sm="9">
-                                        <MDBCardText className="text-muted">{teacherData?.email}</MDBCardText>
-                                    </MDBCol>
-                                </MDBRow>
-                                <hr />
-                                <MDBRow>
-                                    <MDBCol sm="3">
-                                        <MDBCardText>Phone</MDBCardText>
-                                    </MDBCol>
-                                    <MDBCol sm="9">
-                                        <MDBCardText className="text-muted"> {teacherData?.mobileNumber}</MDBCardText>
-                                    </MDBCol>
-                                </MDBRow>
-                                
-                                <hr />
-                                <MDBRow>
-                                    <MDBCol sm="3">
-                                        <MDBCardText>Age</MDBCardText>
-                                    </MDBCol>
-                                    <MDBCol sm="9">
-                                        <MDBCardText className="text-muted">{teacherData?.age}</MDBCardText>
-                                    </MDBCol>
-                                </MDBRow>
-                                <hr />
-                                <MDBRow>
-                                    <MDBCol sm="3">
-                                        <MDBCardText>Address</MDBCardText>
-                                    </MDBCol>
-                                    <MDBCol sm="9">
-                                        <MDBCardText className="text-muted">{teacherData?.address}</MDBCardText>
-                                    </MDBCol>
-                                </MDBRow>
+                                <MDBCardText>Full Name</MDBCardText>
+                                <input
+                                    type="text"
+                                    className="form-control mb-4"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                />
+                                {errors.fullName && <div className="text-danger">{errors.fullName}</div>}
+                                <MDBCardText>Email</MDBCardText>
+                                <input
+                                    type="email"
+                                    className="form-control mb-4"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                {errors.email && <div className="text-danger">{errors.email}</div>}
+                                <MDBCardText>Phone</MDBCardText>
+                                <input
+                                    type="text"
+                                    className="form-control mb-4"
+                                    value={mobileNumber}
+                                    onChange={(e) => setMobileNumber(e.target.value)}
+                                />
+                                {errors.mobileNumber && <div className="text-danger">{errors.mobileNumber}</div>}
+                                <MDBCardText>Age</MDBCardText>
+                                <input
+                                    type="number"
+                                    className="form-control mb-4"
+                                    value={age}
+                                    onChange={(e) => setAge(e.target.value)}
+                                />
+                                {errors.age && <div className="text-danger">{errors.age}</div>}
+                                <MDBCardText>Address</MDBCardText>
+                                <input
+                                    type="text"
+                                    className="form-control mb-4"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                />
+                                {errors.address && <div className="text-danger">{errors.address}</div>}
+                                <MDBBtn color="primary" onClick={handleSubmit}>Update Profile</MDBBtn>
                             </MDBCardBody>
                         </MDBCard>
-
-                        <MDBRow>
-
-
-                            <MDBCol md="6">
-                                <MDBCard className="mb-4 mb-md-0">
-
-                                </MDBCard>
-                            </MDBCol>
-                        </MDBRow>
                     </MDBCol>
                 </MDBRow>
             </MDBContainer>
