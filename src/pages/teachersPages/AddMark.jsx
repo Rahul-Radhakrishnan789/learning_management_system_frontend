@@ -18,14 +18,17 @@ const SubContainer = styled(Box)(({ theme }) => ({
 
 
 function AddMarkCard() {
-  const [rows, setRows] = useState([{ subject: '', mark: '', grade: '' }]);
+  const [rows, setRows] = useState([{ subject: '', totalmark: '', grade: '' }]);
   const [title, setTitle] = useState("");
   const [data,setData] = useState([])
+
+
+  console.log('first',data)
 
   const {id} = useParams();
 
   const handleAddRow = () => {
-    const newRow = { subject: '', mark: '', grade: '' };
+    const newRow = { subject: '', totalmark: '', grade: '' };
     setRows([...rows, newRow]);
   };
 
@@ -43,6 +46,7 @@ function AddMarkCard() {
       const teacherId = localStorage.getItem("teacherId")
       const response = await axios.post(`/addmarksheet/${teacherId}/${id}`, data);
       console.log('Table created successfully:', response.data);
+      fetchData();
     } catch (error) {
       console.error('Error adding daily report:', error);
     }
@@ -93,8 +97,8 @@ useEffect(() => {
                   <TextField
                   required
                     type='number'
-                    value={row.mark}
-                    onChange={(e) => handleChange(index, 'mark', e.target.value)}
+                    value={row.totalmark}
+                    onChange={(e) => handleChange(index, 'totalmark', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
@@ -120,30 +124,32 @@ useEffect(() => {
       </Button>
     </div>
     <MainContainer>
-            <MainTitle>Time Tables</MainTitle>
+           
             <SubContainer>
                 {data?.map((timetable, index) => (
                     <div key={index}>
                         <Typography variant="h6" gutterBottom>
+                          
                            <br />
                            <br />
                            <br />
+                           {timetable.title}
                         </Typography>
                         <TableContainer component={Paper}>
                             <Table aria-label={`simple table ${index}`}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Subject</TableCell>
-                                        <TableCell>Date</TableCell>
-                                        <TableCell>Time Slot</TableCell>
+                                        <TableCell>Total Mark</TableCell>
+                                        <TableCell>Grade</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {timetable.timetable.map((entry, subIndex) => (
+                                    {timetable.marksheet.map((entry, subIndex) => (
                                         <TableRow key={`${index}-${subIndex}`}>
                                             <TableCell>{entry?.subject}</TableCell>
-                                            <TableCell>{new Date(entry?.date).toLocaleDateString()}</TableCell>
-                                            <TableCell>{entry?.timeslot}</TableCell>
+                                            <TableCell>{entry?.totalmark}</TableCell>
+                                            <TableCell>{entry?.grade}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
